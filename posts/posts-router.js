@@ -32,4 +32,42 @@ router.post("/", (req, res) => {
   }
 });
 
+router.post("/:id/comments", (req, res) => {
+  const { id } = req.params;
+  const { text } = req.body;
+  const newComment = {
+    text: text,
+    post_id: id
+  };
+
+  //   Posts.insertComment(newComment)
+  //     .then(post => {
+  //       res.status(201).json(post);
+  //     })
+  //     .catch(err => {
+  //       console.log(err);
+  //       res.status(500).json({ errorMessage: "Bad request" });
+  //     });
+
+  Posts.findById(id)
+    .then(post => {
+      if (post.length > 0) {
+        Posts.insertComment(newComment)
+          .then(comment => {
+            res.status(201).json(comment);
+          })
+          .catch(err => {
+            console.log(err);
+            res.status(500).json({ errorMessage: "Could not add comment" });
+          });
+      } else {
+        res.status(404).json({ errorMessage: "Not found" });
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ errorMessage: "Error adding coment" });
+    });
+});
+
 module.exports = router;
