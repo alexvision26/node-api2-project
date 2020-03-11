@@ -40,15 +40,6 @@ router.post("/:id/comments", (req, res) => {
     post_id: id
   };
 
-  //   Posts.insertComment(newComment)
-  //     .then(post => {
-  //       res.status(201).json(post);
-  //     })
-  //     .catch(err => {
-  //       console.log(err);
-  //       res.status(500).json({ errorMessage: "Bad request" });
-  //     });
-
   Posts.findById(id)
     .then(post => {
       if (post.length > 0) {
@@ -67,6 +58,66 @@ router.post("/:id/comments", (req, res) => {
     .catch(err => {
       console.log(err);
       res.status(500).json({ errorMessage: "Error adding coment" });
+    });
+});
+
+router.get("/:id", (req, res) => {
+  Posts.findById(req.params.id)
+    .then(post => {
+      if (post.length > 0) {
+        res.status(200).json(post);
+      } else {
+        res.status(404).json({ errorMessage: "Could not find post" });
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ errorMessage: "Error retrieving post" });
+    });
+});
+
+router.get("/:id/comments", (req, res) => {
+  Posts.findById(req.params.id).then(item => {
+    if (item.length > 0) {
+      Posts.findPostComments(req.params.id)
+        .then(post => {
+          res.status(200).json(post);
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({ errorMessage: "Could not get comments" });
+        });
+    } else {
+      res.status(500).json({ errorMessage: "Error retrieving comments" });
+    }
+  });
+});
+
+router.delete("/:id", (req, res) => {
+  Posts.findById(req.params.id).then(item => {
+    if (item.length > 0) {
+      Posts.remove(req.params.id)
+        .then(post => {
+          res.status(200).json(post);
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json({ errorMessage: "Error deleting post" });
+        });
+    } else {
+      res.status(404).json({ errorMessage: "Post could not be found" });
+    }
+  });
+});
+
+router.put("/:id", (req, res) => {
+  Posts.update(req.params.id, req.body)
+    .then(post => {
+      res.status(201).json(post);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ errorMessage: "Error editing post" });
     });
 });
 
